@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For-Loop Mechanics Visualizer</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        h3 {
+            margin-top: 0;
+            color: #1e293b;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        .top-row {
+            display: flex;
+            gap: 20px;
+        }
+        .data-source, .variable-box {
+            flex: 1;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .panel-title {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #334155;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .array-container {
+            display: flex;
+            gap: 10px;
+            background: #e2e8f0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .array-item {
+            background: white;
+            color: #475569;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .item-active {
+            background: #3b82f6;
+            color: white;
+            border-color: #2563eb;
+            transform: scale(1.1);
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+        }
+        .item-done {
+            opacity: 0.4;
+        }
+        .var-content {
+            background: #fef3c7;
+            border: 2px dashed #f59e0b;
+            color: #b45309;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 1.2rem;
+            font-weight: bold;
+            min-width: 100px;
+            text-align: center;
+            min-height: 28px;
+        }
+        .middle-row {
+            display: flex;
+            gap: 20px;
+        }
+        .code-panel {
+            flex: 1.5;
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        .code-line {
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .active-line {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: bold;
+        }
+        .output-panel {
+            flex: 1;
+            background: white;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 1rem;
+            color: #334155;
+            white-space: pre-line;
+            min-height: 120px;
+        }
+        .output-title {
+            font-size: 0.85rem;
+            font-family: sans-serif;
+            font-weight: bold;
+            color: #94a3b8;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 1rem;
+        }
+        .btn-step { background-color: #10b981; color: white; }
+        .btn-step:hover { background-color: #059669; }
+        .btn-play { background-color: #8b5cf6; color: white; }
+        .btn-play:hover { background-color: #7c3aed; }
+        .btn-reset { background-color: #e2e8f0; color: #475569; }
+        .btn-reset:hover { background-color: #cbd5e1; }
+        .explanation {
+            background: #e0f2fe;
+            border-left: 4px solid #0284c7;
+            padding: 15px;
+            border-radius: 4px;
+            color: #0369a1;
+            font-size: 0.95rem;
+            text-align: center;
+            line-height: 1.5;
+            min-height: 45px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h3>The Mechanics of a For-Loop</h3>
+    
+    <div class="top-row">
+        <div class="data-source">
+            <div class="panel-title">1. Data Collection (List)</div>
+            <div class="array-container">
+                <div class="array-item" id="item-0">"Accra"</div>
+                <div class="array-item" id="item-1">"Bogotá"</div>
+                <div class="array-item" id="item-2">"Casablanca"</div>
+            </div>
+        </div>
+
+        <div class="variable-box">
+            <div class="panel-title">2. Loop Variable (item)</div>
+            <div class="var-content" id="loop-var">?</div>
+        </div>
+    </div>
+
+    <div class="middle-row">
+        <div class="code-panel">
+            <div style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 10px;"># Python Code</div>
+            <div id="line-0" class="code-line">for item in collection:</div>
+            <div id="line-1" class="code-line">&nbsp;&nbsp;&nbsp;&nbsp;print(item)</div>
+        </div>
+        
+        <div class="output-panel">
+            <div class="output-title">Console Output</div>
+            <div id="console-output"></div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn-step" id="btn-step" onclick="step()">Next Step</button>
+        <button class="btn-play" id="btn-play" onclick="togglePlay()">Auto-Play</button>
+        <button class="btn-reset" onclick="reset()">Reset</button>
+    </div>
+    
+    <div class="explanation" id="explanation">
+        Click <b>Next Step</b> to start the loop. Watch how the loop processes the list one item at a time!
+    </div>
+</div>
+
+<script>
+    const items = ["Accra", "Bogotá", "Casablanca"];
+    const flow = [
+        { line: 0, activeItem: 0, varVal: '"Accra"', out: "", msg: "<b>Iteration 1:</b> The loop looks at the collection, grabs the very first value (<code>Accra</code>), and assigns it to the temporary loop variable <code>item</code>." },
+        { line: 1, activeItem: 0, varVal: '"Accra"', out: "Accra\n", msg: "The code inside the loop executes. It prints whatever is currently stored in <code>item</code>." },
+        { line: 0, activeItem: 1, varVal: '"Bogotá"', out: "Accra\n", msg: "<b>Iteration 2:</b> The loop goes back to the top. It grabs the next available value (<code>Bogotá</code>) and overwrites the loop variable." },
+        { line: 1, activeItem: 1, varVal: '"Bogotá"', out: "Accra\nBogotá\n", msg: "The exact same code executes again, but this time it prints <code>Bogotá</code> because the loop variable changed." },
+        { line: 0, activeItem: 2, varVal: '"Casablanca"', out: "Accra\nBogotá\n", msg: "<b>Iteration 3:</b> The loop returns to the top and grabs the final value (<code>Casablanca</code>)." },
+        { line: 1, activeItem: 2, varVal: '"Casablanca"', out: "Accra\nBogotá\nCasablanca\n", msg: "The code executes for the final time, printing <code>Casablanca</code>." },
+        { line: null, activeItem: null, varVal: '"Casablanca"', out: "Accra\nBogotá\nCasablanca\n", msg: "<b>Loop Complete!</b> The collection is empty, so Python exits the loop. Notice that the loop variable <code>item</code> still holds the last value it processed!" }
+    ];
+
+    let currentStep = 0;
+    let playInterval = null;
+
+    function updateUI() {
+        if (currentStep >= flow.length) {
+            pause();
+            document.getElementById('btn-step').disabled = true;
+            return;
+        }
+
+        const state = flow[currentStep];
+
+        // Code Highlight
+        document.querySelectorAll('.code-line').forEach(el => el.classList.remove('active-line'));
+        if (state.line !== null) {
+            document.getElementById(`line-${state.line}`).classList.add('active-line');
+        }
+
+        // List Highlight
+        document.querySelectorAll('.array-item').forEach((el, index) => {
+            el.classList.remove('item-active');
+            if (index < state.activeItem) {
+                el.classList.add('item-done');
+            } else {
+                el.classList.remove('item-done');
+            }
+        });
+        if (state.activeItem !== null) {
+            document.getElementById(`item-${state.activeItem}`).classList.add('item-active');
+        }
+
+        // Variable Box
+        document.getElementById('loop-var').textContent = state.varVal;
+
+        // Output
+        document.getElementById('console-output').textContent = state.out;
+
+        // Explanation
+        document.getElementById('explanation').innerHTML = state.msg;
+    }
+
+    function step() {
+        updateUI();
+        currentStep++;
+    }
+
+    function togglePlay() {
+        const btn = document.getElementById('btn-play');
+        if (playInterval) {
+            pause();
+        } else {
+            btn.textContent = "Pause";
+            btn.style.backgroundColor = "#f59e0b";
+            playInterval = setInterval(() => {
+                if (currentStep < flow.length) {
+                    step();
+                } else {
+                    pause();
+                }
+            }, 1200);
+        }
+    }
+
+    function pause() {
+        clearInterval(playInterval);
+        playInterval = null;
+        const btn = document.getElementById('btn-play');
+        btn.textContent = "Auto-Play";
+        btn.style.backgroundColor = "#8b5cf6";
+    }
+
+    function reset() {
+        pause();
+        currentStep = 0;
+        document.getElementById('btn-step').disabled = false;
+        
+        document.querySelectorAll('.code-line').forEach(el => el.classList.remove('active-line'));
+        document.querySelectorAll('.array-item').forEach(el => {
+            el.classList.remove('item-active');
+            el.classList.remove('item-done');
+        });
+        document.getElementById('loop-var').textContent = "?";
+        document.getElementById('console-output').textContent = "";
+        document.getElementById('explanation').innerHTML = "Click <b>Next Step</b> to start the loop. Watch how the loop processes the list one item at a time!";
+    }
+</script>
+
+</body>
+</html>
